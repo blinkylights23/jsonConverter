@@ -1,0 +1,30 @@
+{
+  "name": "jsonconverter",
+  "version": "0.0.0",
+  "description": "JSON-to-JSON converter for providing transformations in hand-rolled ETL data pipelines",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest --verbose",
+    "build": "webpack -r esm --mode production --config webpack/webpack.config.js",
+    "build:watch": "webpack -w -r esm --mode development --config webpack/webpack.config.js"
+  },
+  "keywords": [
+    "json2json",
+    "transformation",
+    "mapping"
+  ],
+  "author": "Paul Smith <paul@paulsmith.io>",
+  "license": "ISC",
+  "devDependencies": {
+    "axios": "^0.19.0",
+    "concurrently": "^4.1.1",
+    "eslint": "^6.1.0",
+    "esm": "^3.2.25",
+    "jest": "^24.8.0",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.6"
+  },
+  "dependencies": {
+    "jmespath": "^0.15.0"
+  }
+}
