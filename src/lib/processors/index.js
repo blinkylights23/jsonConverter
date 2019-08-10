@@ -1,7 +1,7 @@
 import jmespath from 'jmespath'
 
 export default {
-  upper: value => value.toUppercase(),
+  upper: value => value.toUpperCase(),
   lower: value => value.toLowerCase(),
   trim: value => value.trim(),
   join: (value, joiner = ', ') => value.join(joiner),

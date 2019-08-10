@@ -1,21 +1,35 @@
-import { Converter } from '../dist'
+import { processors } from '../dist'
 
 describe('default processors', () => {
-  test('upper', () => expect(true).toBe(true))
-  test('lower', () => expect(true).toBe(true))
-  test('trim', () => expect(true).toBe(true))
-  test('join', () => expect(true).toBe(true))
-  test('map', () => expect(true).toBe(true))
-  test('query', () => expect(true).toBe(true))
-  test('convert', () => expect(true).toBe(true))
-  test('slugify', () => expect(true).toBe(true))
-  test('stringFormat', () => expect(true).toBe(true))
-  test('escape', () => expect(true).toBe(true))
-  test('titleCase', () => expect(true).toBe(true))
-  test('truncate', () => expect(true).toBe(true))
-  test('fetch', () => expect(true).toBe(true))
-  test('stripTags', () => expect(true).toBe(true))
-  test('sort', () => expect(true).toBe(true))
-  test('slice', () => expect(true).toBe(true))
-  test('dateFormat', () => expect(true).toBe(true))
+  test('upper', () => {
+    expect(processors.upper('foo')).toBe('FOO')
+  })
+  test('lower', () => {
+    expect(processors.lower('FOO')).toBe('foo')
+  })
+  test('trim', () => {
+    expect(processors.trim('  foo')).toBe('foo')
+    expect(processors.trim('foo  ')).toBe('foo')
+    expect(processors.trim('  foo  ')).toBe('foo')
+  })
+  test('join', () => {
+    expect(processors.join(['foo', 'bar'])).toBe('foo, bar')
+    expect(processors.join(['foo', 'bar'], '**')).toBe('foo**bar')
+  })
+  test('query', () => {
+    expect(processors.query(['foo', 'bar'], 'length([])')).toBe(2)
+    expect(processors.query(['foo', 'bar'], '[1]')).toBe('bar')
+  })
+  test('slugify', () => expect(true).toBe(false))
+  test('stringFormat', () => expect(true).toBe(false))
+  test('escape', () => expect(true).toBe(false))
+  test('titleCase', () => expect(true).toBe(false))
+  test('truncate', () => expect(true).toBe(false))
+  test('fetch', () => expect(true).toBe(false))
+  test('stripTags', () => expect(true).toBe(false))
+  test('sort', () => expect(true).toBe(false))
+  test('slice', () => expect(true).toBe(false))
+  test('dateFormat', () => expect(true).toBe(false))
+  test('convert', () => expect(true).toBe(false))
+  test('map', () => expect(true).toBe(false))
 })

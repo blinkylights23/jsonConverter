@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Converter } from '../dist'
+import { Converter, processors } from '../dist'
 import hanSolo from './fixtures/hansolo'
 
 function getHomeworld(url) {
