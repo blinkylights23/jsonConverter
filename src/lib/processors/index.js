@@ -5,17 +5,34 @@ export default {
   lower: value => value.toLowerCase(),
   trim: value => value.trim(),
   join: (value, joiner = ', ') => value.join(joiner),
-  map: (arrayValue, fn) => arrayValue.map(fn),
+  map: function(arrayValue, fn) {
+    return arrayValue.map(this[fn])
+  },
   query: (value, query) => jmespath.search(value, query),
-  convert: () => Promise.resolve('converter'),
-  slugify: value => value,
-  stringFormat: (value, template) => value,
-  escape: value => value,
-  titleCase: value => value,
+  slugify: value => {
+    return value
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+      .replace(/\-\-+/g, '-')
+      .replace(/^-+/, '')
+      .replace(/-+$/, '')
+  },
+  titleCase: value => {
+    return value
+      .split(' ')
+      .map(w => w[0].toUpperCase() + w.substr(1).toLowerCase())
+      .join(' ')
+  }
   truncate: value => value,
-  fetch: value => value,
-  stripTags: value => value,
+  escape: value => value,
   sort: value => value,
   slice: value => value,
-  dateFormat: value => value
+  dateFormat: value => value,
+  fetch: value => value,
+  stripTags: value => value,
+  convert: () => Promise.resolve('converter')
+  // stringFormat: (value, template, context) => value
 }
