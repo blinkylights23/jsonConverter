@@ -2,8 +2,7 @@ import jmespath from 'jmespath'
 import processors from './processors'
 
 export default class Converter {
-  constructor(source, template) {
-    this.source = source
+  constructor(template) {
     this.template = template
     this.processors = processors
   }
@@ -39,11 +38,11 @@ export default class Converter {
     }
   }
 
-  render() {
+  render(source) {
     var asyncMapping = this.template.mappings.map(mapping => {
       let asyncResult
       if (mapping.processors) {
-        let initialValue = jmespath.search(this.source, mapping.query || '@')
+        let initialValue = jmespath.search(source, mapping.query || '@')
         return mapping.processors
           .reduce((prev, curr) => {
             return prev.then(result => {
@@ -57,7 +56,7 @@ export default class Converter {
             }
           })
       } else if (mapping.query) {
-        asyncResult = Promise.resolve({ path: mapping.path, result: jmespath.search(this.source, mapping.query) })
+        asyncResult = Promise.resolve({ path: mapping.path, result: jmespath.search(source, mapping.query) })
       } else if (mapping.value) {
         asyncResult = Promise.resolve({ path: mapping.path, result: mapping.value })
       }

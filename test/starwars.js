@@ -19,8 +19,8 @@ const characterTemplate = {
   ]
 }
 
-const converter = new Converter(hanSolo, characterTemplate)
+const converter = new Converter(characterTemplate)
 
-converter.render().then(result => {
+converter.render(hanSolo).then(result => {
   console.log(result)
 })
