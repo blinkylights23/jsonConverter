@@ -34,8 +34,7 @@ export default {
   }
   sort: (value, fn) => value.sort(fn),
   slice: (value, start, end) => value.slice(start, end),
-  dateFormat: value => {
-  },
+  dateFormat: value => {},
   fetch: value => value,
   stripTags: value => value,
   convert: () => Promise.resolve('converter')
