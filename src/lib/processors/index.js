@@ -27,6 +27,11 @@ export default {
       .join(' ')
   },
   toJson: value => JSON.stringify(value),
+  stringFormat: (value, template) => {
+    return template.replace(/{([^\}]+)}/g, () => {
+      return typeof args[i] != 'undefined' ? args[i++] : '';
+    })
+  }
   sort: (value, fn) => value.sort(fn),
   slice: (value, start, end) => value.slice(start, end),
   dateFormat: value => {
@@ -34,5 +39,4 @@ export default {
   fetch: value => value,
   stripTags: value => value,
   convert: () => Promise.resolve('converter')
-  // stringFormat: (value, template, context) => value
 }

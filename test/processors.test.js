@@ -29,8 +29,13 @@ describe('default processors', () => {
   // test('stringFormat', () => {
   //   expect(processors.stringFormat({ foo: 'bar' }, 'The value of foo is {foo}', ['foo'])).toBe(false)
   // })
-  // test('escape', () => expect(true).toBe(false))
-  // test('titleCase', () => expect(true).toBe(false))
+  test('titleCase', () => {
+    expect(processors.titleCase('I have a bad feeling about this')).toBe('I Have A Bad Feeling About This')
+  })
+  test('toJson', () => {
+    expect(processors.toJson({ quote: '"I bet you have," he said, and then shot first.' }))
+      .toBe("{\"quote\":\"\\\"I bet you have,\\\" he said, and then shot first.\"}")
+  })
   // test('truncate', () => expect(true).toBe(false))
   // test('fetch', () => expect(true).toBe(false))
   // test('stripTags', () => expect(true).toBe(false))
