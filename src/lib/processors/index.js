@@ -25,7 +25,7 @@ export default {
       .split(' ')
       .map(w => w[0].toUpperCase() + w.substr(1).toLowerCase())
       .join(' ')
-  }
+  },
   truncate: value => value,
   escape: value => value,
   sort: value => value,
