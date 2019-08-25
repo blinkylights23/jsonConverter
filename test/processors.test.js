@@ -26,21 +26,31 @@ describe('default processors', () => {
   test('map', () => {
     expect(processors.map(['foo', 'bar'], 'upper')).toStrictEqual(['FOO', 'BAR'])
   })
-  // test('stringFormat', () => {
-  //   expect(processors.stringFormat({ foo: 'bar' }, 'The value of foo is {foo}', ['foo'])).toBe(false)
-  // })
+  test('stringFormat', () => {
+    expect(
+      processors.stringFormat({ feeling: 'bad', about: 'this' }, 'I have a {feeling} feeling about {about}.')
+    ).toBe('I have a bad feeling about this.')
+  })
   test('titleCase', () => {
     expect(processors.titleCase('I have a bad feeling about this')).toBe('I Have A Bad Feeling About This')
   })
   test('toJson', () => {
-    expect(processors.toJson({ quote: '"I bet you have," he said, and then shot first.' }))
-      .toBe("{\"quote\":\"\\\"I bet you have,\\\" he said, and then shot first.\"}")
+    expect(processors.toJson({ quote: '"I bet you have," he said, and then shot first.' })).toBe(
+      '{"quote":"\\"I bet you have,\\" he said, and then shot first."}'
+    )
   })
-  // test('truncate', () => expect(true).toBe(false))
+  test('dateFormat', () => {
+    expect(processors.dateFormat('May 25, 1977 13:00 EDT')).toBe('1977-05-25T17:00:00.000Z')
+  })
+  test('sort', () => {
+    expect(processors.sort(['wookiee', 'jawa', 'ewok'])).toStrictEqual(['ewok', 'jawa', 'wookiee'])
+    expect(processors.sort([1000, 900, 80], (a, b) => a - b)).toStrictEqual([80, 900, 1000])
+  })
+  test('slice', () => {
+    expect(
+      processors.slice("...or given you clairvoyance enough to find the Rebels' hidden base, Lord Vader.", 0, -18)
+    ).toBe("...or given you clairvoyance enough to find the Rebels' hidden")
+  })
   // test('fetch', () => expect(true).toBe(false))
-  // test('stripTags', () => expect(true).toBe(false))
-  // test('sort', () => expect(true).toBe(false))
-  // test('slice', () => expect(true).toBe(false))
-  // test('dateFormat', () => expect(true).toBe(false))
   // test('convert', () => expect(true).toBe(false))
 })

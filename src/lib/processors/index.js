@@ -28,14 +28,16 @@ export default {
   },
   toJson: value => JSON.stringify(value),
   stringFormat: (value, template) => {
-    return template.replace(/{([^\}]+)}/g, () => {
-      return typeof args[i] != 'undefined' ? args[i++] : '';
+    return template.replace(/{([^\}]+)}/g, (m, s) => {
+      return typeof value[s] != 'undefined' ? value[s] : ''
     })
-  }
+  },
   sort: (value, fn) => value.sort(fn),
   slice: (value, start, end) => value.slice(start, end),
-  dateFormat: value => {},
+  dateFormat: value => {
+    let d = new Date(value)
+    return d.toISOString()
+  },
   fetch: value => value,
-  stripTags: value => value,
   convert: () => Promise.resolve('converter')
 }
