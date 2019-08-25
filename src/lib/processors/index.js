@@ -26,11 +26,10 @@ export default {
       .map(w => w[0].toUpperCase() + w.substr(1).toLowerCase())
       .join(' ')
   },
-  truncate: value => value,
-  escape: value => value,
-  sort: value => value,
-  slice: value => value,
-  dateFormat: value => value,
+  toJson: value => JSON.stringify(value),
+  sort: (value, fn) => value.sort(fn),
+  slice: (value, start, end) => value.slice(start, end),
+  dateFormat: value => {},
   fetch: value => value,
   stripTags: value => value,
   convert: () => Promise.resolve('converter')
