@@ -1,4 +1,5 @@
 import jmespath from 'jmespath'
+import axios from 'axios'
 
 export default {
   upper: value => value.toUpperCase(),
@@ -38,6 +39,12 @@ export default {
     let d = new Date(value)
     return d.toISOString()
   },
-  fetch: value => value,
-  convert: () => Promise.resolve('converter')
+  fetch: (value, params = {}, query) => {
+    return axios.get(value, params).then(response => {
+      if (query) {
+        result = jmespath.search(response, query)
+      }
+      return response
+    })
+  }
 }

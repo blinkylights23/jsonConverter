@@ -24,7 +24,7 @@ describe('default processors', () => {
     expect(processors.slugify('Han Solo, han@scoundrel.com')).toBe('han-solo-hanscoundrelcom')
   })
   test('map', () => {
-    expect(processors.map(['foo', 'bar'], 'upper')).toStrictEqual(['FOO', 'BAR'])
+    expect(processors.map(['rebel', 'base'], 'upper')).toStrictEqual(['REBEL', 'BASE'])
   })
   test('stringFormat', () => {
     expect(
@@ -32,7 +32,7 @@ describe('default processors', () => {
     ).toBe('I have a bad feeling about this.')
   })
   test('titleCase', () => {
-    expect(processors.titleCase('I have a bad feeling about this')).toBe('I Have A Bad Feeling About This')
+    expect(processors.titleCase('star wars')).toBe('Star Wars')
   })
   test('toJson', () => {
     expect(processors.toJson({ quote: '"I bet you have," he said, and then shot first.' })).toBe(
@@ -47,10 +47,14 @@ describe('default processors', () => {
     expect(processors.sort([1000, 900, 80], (a, b) => a - b)).toStrictEqual([80, 900, 1000])
   })
   test('slice', () => {
-    expect(
-      processors.slice("...or given you clairvoyance enough to find the Rebels' hidden base, Lord Vader.", 0, -18)
-    ).toBe("...or given you clairvoyance enough to find the Rebels' hidden")
+    let commander =
+      "Your sad devotion to that ancient religion hasn't helped you conjure up the stolen data tapes, or given you clairvoyance enough to find the Rebels' hidden base, Lord Vader."
+    let vader = processors.slice(commander, 95, -18)
+    expect(`...${vader} <hrk!>`).toBe("...or given you clairvoyance enough to find the Rebels' hidden <hrk!>")
   })
-  // test('fetch', () => expect(true).toBe(false))
-  // test('convert', () => expect(true).toBe(false))
+  test('fetch', () => {
+    expect(
+      processors.fetch('https://swapi.co/api/vehicles/', null, "results[?vehicle_class='repulsorcraft'].name")
+    ).resolves.toStrictEqual(['T-16 skyhopper', 'X-34 landspeeder', 'Storm IV Twin-Pod cloud car'])
+  })
 })
