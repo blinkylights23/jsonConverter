@@ -1,5 +1,6 @@
 import { Converter } from '../dist'
 import source from './fixtures/hansolo.json'
+import vehicles from './fixtures/vehicles.json'
 
 describe('a Converter instance', () => {
   test('can assign an arbitrary value to destination JSON', () => {
@@ -56,14 +57,7 @@ describe('a Converter instance', () => {
         {
           path: 'bestPal',
           query: 'name',
-          processors: [
-            value => {
-              if (value.toLowerCase().match(/solo/gi)) {
-                return 'Chewie'
-              }
-            },
-            'upper'
-          ]
+          processors: [value => 'Chewie', 'upper']
         }
       ]
     }
@@ -84,7 +78,7 @@ describe('a Converter instance', () => {
           processors: [
             {
               processor: 'join',
-              args: [',']
+              args: [', ']
             }
           ]
         }
@@ -94,7 +88,7 @@ describe('a Converter instance', () => {
     converter.render(source).then(result => {
       expect(result).toStrictEqual({
         movies:
-          'https://swapi.co/api/films/2/,https://swapi.co/api/films/3/,https://swapi.co/api/films/1/,https://swapi.co/api/films/7/'
+          'https://swapi.co/api/films/2/, https://swapi.co/api/films/3/, https://swapi.co/api/films/1/, https://swapi.co/api/films/7/'
       })
     })
   })
@@ -124,10 +118,36 @@ describe('a Converter instance', () => {
       })
     })
   })
+  test('can apply a query to a fetch via a map', () => {
+    let template = {
+      mappings: [
+        { path: 'name', query: 'name', processors: ['trim', 'lower'] },
+        {
+          path: 'movies',
+          query: 'films',
+          processors: [{ processor: 'map', args: ['fetch'] }, { processor: 'query', args: '[].title' }]
+        }
+      ]
+    }
+    let converter = new Converter(template)
+    converter.render(source).then(result => {
+      console.log(result)
+      expect(result).toStrictEqual({
+        name: 'han solo',
+        movies: ['The Empire Strikes Back', 'Return of the Jedi', 'A New Hope', 'The Force Awakens']
+      })
+    })
+  })
   test('can apply a registered processor as a map', () => {
     expect(true).toStrictEqual(true)
   })
   test('can apply a mapping that uses another converter', () => {
+    expect(true).toStrictEqual(true)
+  })
+  test('maps undefined to a path when any processor returns null or undefined', () => {
+    expect(true).toStrictEqual(true)
+  })
+  test('can apply a post-processing hook to a mapping', () => {
     expect(true).toStrictEqual(true)
   })
 })

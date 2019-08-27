@@ -8,13 +8,29 @@ function getHomeworld(url) {
   })
 }
 
+function cm2ft(cm) {
+  var floatFeet = (cm * 0.3937) / 12
+  var feet = Math.floor(floatFeet)
+  var inches = Math.round((floatFeet - feet) * 12)
+  return `${feet}'${inches}"`
+}
+
 const characterTemplate = {
   mappings: [
     { path: 'characterName', query: 'name' },
     { path: 'isAwesome', value: true },
     { path: 'lowerName', query: 'name', processors: ['lower', 'trim'] },
-    { path: 'height', query: 'height', processors: [value => value / 30.48] },
-    { path: 'films', query: 'films', processors: [{ processor: 'join', args: [' :: '] }] },
+    { path: 'height', query: 'height', processors: [cm2ft] },
+    {
+      path: 'ships',
+      query: 'starships',
+      processors: [{ processor: 'map', args: ['fetch'] }, { processor: 'query', args: ['[].name'] }]
+    },
+    {
+      path: 'appearedIn',
+      query: 'films',
+      processors: [{ processor: 'map', args: ['fetch'] }, { processor: 'query', args: ['[].title'] }]
+    },
     { path: 'bio.homeworld', query: 'homeworld', processors: [getHomeworld] }
   ]
 }

@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "https://raw.githubusercontent.com/blinkylights23/jsonConverter/master/schema/jsonConverter/0.0.1/mapping.json",
+  "title": "A jsonConverter mapping",
+  "description": "Holds attributes of a jsonConverter mapping, to be used to within a jsonConverter template",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "value": {
+      "type": "string"
+    },
+    "query": {
+      "type": "string"
+    },
+    "processors": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "properties": { "processor": { "type": "string" }, "args": { "type": "array" } },
+            "required": ["processor"]
+          }
+        ]
+      }
+    },
+    "hook": {
+      "type": "string"
+    }
+  },
+  "required": ["path"]
+}

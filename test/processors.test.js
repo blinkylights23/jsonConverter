@@ -1,4 +1,8 @@
+import axios from 'axios'
 import { processors } from '../dist'
+import vehicles from './fixtures/vehicles'
+
+jest.mock('axios')
 
 describe('default processors', () => {
   test('upper', () => {
@@ -24,7 +28,9 @@ describe('default processors', () => {
     expect(processors.slugify('Han Solo, han@scoundrel.com')).toBe('han-solo-hanscoundrelcom')
   })
   test('map', () => {
-    expect(processors.map(['rebel', 'base'], 'upper')).toStrictEqual(['REBEL', 'BASE'])
+    processors.map(['rebel', 'base'], 'upper').then(result => {
+      expect(result).toStrictEqual(['REBEL', 'BASE'])
+    })
   })
   test('stringFormat', () => {
     expect(
@@ -48,13 +54,13 @@ describe('default processors', () => {
   })
   test('slice', () => {
     let commander =
-      "Your sad devotion to that ancient religion hasn't helped you conjure up the stolen data tapes, or given you clairvoyance enough to find the Rebels' hidden base, Lord Vader."
-    let vader = processors.slice(commander, 95, -18)
+      "Your sad devotion to that ancient religion hasn't helped you conjure up the stolen data tapes,\
+       or given you clairvoyance enough to find the Rebels' hidden base, Lord Vader."
+    let vader = processors.slice(commander, 101, -18)
     expect(`...${vader} <hrk!>`).toBe("...or given you clairvoyance enough to find the Rebels' hidden <hrk!>")
   })
   test('fetch', () => {
-    expect(
-      processors.fetch('https://swapi.co/api/vehicles/', null, "results[?vehicle_class='repulsorcraft'].name")
-    ).resolves.toStrictEqual(['T-16 skyhopper', 'X-34 landspeeder', 'Storm IV Twin-Pod cloud car'])
+    axios.get.mockResolvedValue({ data: vehicles })
+    expect(processors.fetch('https://swapi.co/api/vehicles/')).resolves.toEqual(vehicles)
   })
 })

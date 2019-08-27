@@ -26,7 +26,7 @@ export default class Converter {
     // if processor is an object with a "processor" member, call the this.processors member with value, and processor.args
     if (typeof processor == 'object') {
       let args = processor.args || []
-      let processorResult = this.processors[processor.processor].apply(null, [value, ...args])
+      let processorResult = this.processors[processor.processor].apply(this.processors, [value, ...args])
       if (processorResult instanceof Promise) return processorResult
       else return Promise.resolve(processorResult)
     }
@@ -43,7 +43,7 @@ export default class Converter {
       let asyncResult
       if (mapping.processors) {
         let initialValue = jmespath.search(source, mapping.query || '@')
-        return mapping.processors
+        asyncResult = mapping.processors
           .reduce((prev, curr) => {
             return prev.then(result => {
               return this.applyProcessor(curr, result)

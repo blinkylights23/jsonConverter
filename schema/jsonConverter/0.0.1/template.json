@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "https://raw.githubusercontent.com/blinkylights23/jsonConverter/master/schema/jsonConverter/0.0.1/template.json",
+  "title": "A jsonConverter template",
+  "description": "Holds attributes of a jsonConverter template, to be used to instantiate a converter",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "description": "The version of the JSON schema definition used for this template",
+      "enum": ["0.0.1"]
+    },
+    "jsonConverterVersion": {
+      "type": "string",
+      "description": "The version of jsonConverter this template works with",
+      "pattern": "^[0-9]{3}.[0-9]{3}.[0-9]{3}$"
+    },
+    "version": {
+      "type": "string",
+      "description": "The version of the template (not the schema or the module)",
+      "pattern": "^[0-9]{3}.[0-9]{3}.[0-9]{3}$"
+    },
+    "id": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "$ref": "https://raw.githubusercontent.com/blinkylights23/jsonConverter/master/schema/jsonConverter/0.0.1/mapping.json"
+      }
+    }
+  },
+  "required": ["mapping", "version"]
+}

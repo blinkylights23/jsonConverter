@@ -7,7 +7,13 @@ export default {
   trim: value => value.trim(),
   join: (value, joiner = ', ') => value.join(joiner),
   map: function(arrayValue, fn) {
-    return arrayValue.map(this[fn])
+    return Promise.all(
+      arrayValue.map(v => {
+        let processorResult = this[fn](v)
+        if (processorResult instanceof Promise) return processorResult
+        else return Promise.resolve(processorResult)
+      })
+    )
   },
   query: (value, query) => jmespath.search(value, query),
   slugify: value => {
@@ -39,12 +45,7 @@ export default {
     let d = new Date(value)
     return d.toISOString()
   },
-  fetch: (value, params = {}, query) => {
-    return axios.get(value, params).then(response => {
-      if (query) {
-        result = jmespath.search(response, query)
-      }
-      return response
-    })
+  fetch: (value, params = {}) => {
+    return axios.get(value, params).then(response => response.data)
   }
 }
