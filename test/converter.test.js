@@ -1,6 +1,9 @@
+import axios from 'axios'
 import { Converter } from '../dist'
 import source from './fixtures/hansolo.json'
-import vehicles from './fixtures/vehicles.json'
+import films from './fixtures/films.json'
+
+jest.mock('axios')
 
 describe('a Converter instance', () => {
   test('can assign an arbitrary value to destination JSON', () => {
@@ -36,6 +39,17 @@ describe('a Converter instance', () => {
           skinColor: 'fair',
           hairColor: 'brown'
         }
+      })
+    })
+  })
+  test('will prefer to apply processors to value over query', () => {
+    let template = {
+      mappings: [{ path: 'name', value: 'Luke Skywalker', query: 'name', processors: ['lower'] }]
+    }
+    let converter = new Converter(template)
+    converter.render(source).then(result => {
+      expect(result).toStrictEqual({
+        name: 'luke skywalker'
       })
     })
   })
@@ -121,25 +135,42 @@ describe('a Converter instance', () => {
   test('can apply a query to a fetch via a map', () => {
     let template = {
       mappings: [
-        { path: 'name', query: 'name', processors: ['trim', 'lower'] },
         {
           path: 'movies',
           query: 'films',
-          processors: [{ processor: 'map', args: ['fetch'] }, { processor: 'query', args: '[].title' }]
+          processors: [{ processor: 'map', args: ['fetch'] }, { processor: 'query', args: ['[].title'] }]
         }
       ]
     }
+    axios.get.mockImplementation(value => {
+      let film = films.results.find(f => f.url == value)
+      return Promise.resolve({ data: film })
+    })
     let converter = new Converter(template)
-    converter.render(source).then(result => {
-      console.log(result)
+    return converter.render(source).then(result => {
       expect(result).toStrictEqual({
-        name: 'han solo',
         movies: ['The Empire Strikes Back', 'Return of the Jedi', 'A New Hope', 'The Force Awakens']
       })
     })
   })
   test('can apply a registered processor as a map', () => {
-    expect(true).toStrictEqual(true)
+    let template = {
+      mappings: [
+        {
+          path: 'quotes',
+          value: ['Punch it', "Let's hope we don't have a burn-out"],
+          processors: [{ processor: 'map', args: ['chewify'] }]
+        }
+      ]
+    }
+    let chewify = str => `${str}, Chewie!`
+    let converter = new Converter(template)
+    converter.processors.chewify = chewify
+    return converter.render(source).then(result => {
+      expect(result).toStrictEqual({
+        quotes: ['Punch it, Chewie!', "Let's hope we don't have a burn-out, Chewie!"]
+      })
+    })
   })
   test('can apply a mapping that uses another converter', () => {
     expect(true).toStrictEqual(true)

@@ -42,7 +42,7 @@ export default class Converter {
     var asyncMapping = this.template.mappings.map(mapping => {
       let asyncResult
       if (mapping.processors) {
-        let initialValue = jmespath.search(source, mapping.query || '@')
+        let initialValue = mapping.value || jmespath.search(source, mapping.query || '@')
         asyncResult = mapping.processors
           .reduce((prev, curr) => {
             return prev.then(result => {
