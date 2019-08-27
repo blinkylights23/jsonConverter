@@ -52,21 +52,34 @@ export default class Converter {
           .then(outcome => {
             return {
               path: mapping.path,
-              result: outcome
+              result: outcome,
+              hook: mapping.hook
             }
           })
       } else if (mapping.query) {
-        asyncResult = Promise.resolve({ path: mapping.path, result: jmespath.search(source, mapping.query) })
+        asyncResult = Promise.resolve({
+          path: mapping.path,
+          result: jmespath.search(source, mapping.query),
+          hook: mapping.hook
+        })
       } else if (mapping.value) {
-        asyncResult = Promise.resolve({ path: mapping.path, result: mapping.value })
+        asyncResult = Promise.resolve({ path: mapping.path, result: mapping.value, hook: mapping.hook })
       }
       return asyncResult
     })
     return Promise.all(asyncMapping).then(results => {
-      return results.reduce((obj, result) => {
-        this.assignDotted(obj, result.path, result.result)
-        return obj
-      }, {})
+      let processingResult = results
+        .map(obj => {
+          if (obj.hook) {
+            obj.result = obj.hook(obj.result)
+          }
+          return obj
+        })
+        .reduce((obj, result) => {
+          this.assignDotted(obj, result.path, result.result)
+          return obj
+        }, {})
+      return processingResult
     })
   }
 }

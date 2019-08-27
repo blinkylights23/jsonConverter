@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { Converter } from '../dist'
 import source from './fixtures/hansolo.json'
+import luke from './fixtures/luke.json'
 import films from './fixtures/films.json'
 
 jest.mock('axios')
@@ -172,13 +173,34 @@ describe('a Converter instance', () => {
       })
     })
   })
-  test('can apply a mapping that uses another converter', () => {
-    expect(true).toStrictEqual(true)
+  test('can apply a post-processing hook to a mapping', () => {
+    let ships = []
+    let shipHook = shipList => {
+      ships = ships.concat(shipList).sort()
+      return shipList
+    }
+    let template = {
+      mappings: [
+        { path: 'name', query: 'name', processors: ['trim'] },
+        {
+          path: 'ships',
+          query: 'starships',
+          processors: [{ processor: 'map', args: ['upper'] }],
+          hook: shipHook
+        }
+      ]
+    }
+    let converter = new Converter(template)
+    Promise.all([converter.render(source), converter.render(luke)]).then(outcome => {
+      expect(ships).toStrictEqual([
+        'HTTPS://SWAPI.CO/API/STARSHIPS/10/',
+        'HTTPS://SWAPI.CO/API/STARSHIPS/12/',
+        'HTTPS://SWAPI.CO/API/STARSHIPS/22/',
+        'HTTPS://SWAPI.CO/API/STARSHIPS/22/'
+      ])
+    })
   })
   test('maps undefined to a path when any processor returns null or undefined', () => {
-    expect(true).toStrictEqual(true)
-  })
-  test('can apply a post-processing hook to a mapping', () => {
     expect(true).toStrictEqual(true)
   })
 })
