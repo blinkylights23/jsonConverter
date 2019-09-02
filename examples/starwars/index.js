@@ -1,9 +1,13 @@
+import hl from 'highland'
+import JSONStream from 'JSONStream'
 import { extract } from './extract'
 import { converter } from './transform'
-import loadTransformed from './load'
 
 extract(500)
   .map(item => {
-    return converter.render(item)
+    return item
+    // return hl(converter.render(item))
   })
-  .each(loadTransformed)
+  .flatten()
+  .through(JSONStream.stringify('[\n  ', ',\n  ', '\n]\n'))
+  .pipe(process.stdout)
