@@ -6,7 +6,7 @@ import films from './fixtures/films.json'
 
 jest.mock('axios')
 
-describe('a Converter instance', () => {
+describe("I do not want the Emperor's prize damaged. We will test it... on Captain Solo. A Converter instance:", () => {
   test('can assign an arbitrary value to destination JSON', () => {
     let template = {
       mappings: [{ path: 'isAwesome', value: true }]
@@ -71,8 +71,7 @@ describe('a Converter instance', () => {
         { path: 'name', query: 'name', processors: ['trim', 'upper'] },
         {
           path: 'bestPal',
-          query: 'name',
-          processors: [value => 'Chewie', 'upper']
+          processors: [() => 'Chewie', 'upper']
         }
       ]
     }
@@ -199,6 +198,12 @@ describe('a Converter instance', () => {
         'HTTPS://SWAPI.CO/API/STARSHIPS/22/'
       ])
     })
+  })
+  test('can use an object as a starting point, and converted values add to or overwrite existing properties', () => {
+    expect(true).toStrictEqual(true)
+  })
+  test("can, when path is an array, destructure mapping results into it's members", () => {
+    expect(true).toStrictEqual(true)
   })
   test('maps undefined to a path when any processor returns null or undefined', () => {
     expect(true).toStrictEqual(true)

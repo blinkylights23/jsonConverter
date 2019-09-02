@@ -1,0 +1,46 @@
+{
+  "version": "0.0.0",
+  "id": "characterConverter",
+  "name": "Character Converter",
+  "description": "Converts data from SWAPI to our target format",
+  "mappings": [
+    { "path": "characterName", "query": "name", "processors": ["trim"] },
+    { "path": "height", "query": "height", "processors": ["cm2ft"] },
+    {
+      "path": "appearedIn",
+      "query": "films",
+      "processors": [{ "processor": "map", "args": ["fetch"] }, { "processor": "query", "args": ["[].title"] }]
+    },
+    {
+      "path": "homeworld",
+      "query": "homeworld",
+      "processors": ["fetch", { "processor": "query", "args": ["name"] }]
+    },
+    {
+      "path": "bio.height",
+      "query": "height",
+      "processors": ["cm2ft"]
+    },
+    {
+      "path": "bio.weight",
+      "query": "mass",
+      "processors": ["kg2lbs"]
+    },
+    {
+      "path": "bio.eyes",
+      "query": "eye_color"
+    },
+    {
+      "path": "bio.gender",
+      "query": "gender"
+    },
+    {
+      "path": "bio.skin",
+      "query": "skin_color"
+    },
+    {
+      "path": "bio.hair",
+      "query": "hair_color"
+    }
+  ]
+}
