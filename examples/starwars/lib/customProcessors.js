@@ -7,7 +7,7 @@ function cm2ft(cm) {
 
 function kg2lbs(kg) {
   var floatPounds = kg * 2.20462
-  var pounds = Math.floor(floatFeet)
+  var pounds = Math.floor(floatPounds)
   return pounds
 }
 

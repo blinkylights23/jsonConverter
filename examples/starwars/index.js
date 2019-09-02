@@ -1,4 +1,9 @@
-import hl from 'highland'
-import extractPeople from './extract'
+import { extract } from './extract'
 import { converter } from './transform'
 import loadTransformed from './load'
+
+extract(500)
+  .map(item => {
+    return converter.render(item)
+  })
+  .each(loadTransformed)

@@ -1,3 +1,5 @@
 export default function loadTransformed(data) {
-  console.log(data)
+  data.then(result => {
+    console.log(result)
+  })
 }
