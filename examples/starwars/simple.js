@@ -1,4 +1,3 @@
-import hl from 'highland'
 import JSONStream from 'JSONStream'
 import { extract } from './extract'
 import { converter } from './transform'

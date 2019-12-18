@@ -1,3 +1,6 @@
+import JSONStream from 'JSONStream'
+import hl from 'highland'
+import { converter } from './transform'
 import { create } from 'apisauce'
 import { compose, curry } from './lib/functional'
 import * as baseClient from './lib/baseClient'
@@ -7,31 +10,41 @@ const swapiAxiosOptions = {
   headers: { Accept: 'application/json' }
 }
 
-const apiClient = compose(
-  baseClient.addAxiosMonitor(baseClient.consoleMonitor),
-  create
-)
+const apiClient = compose(baseClient.addAxiosMonitor(baseClient.consoleMonitor), create)
 
 const swapi = apiClient(swapiAxiosOptions)
 
 const getEndpoint = endpoint => {
   return options => {
-    baseClient.retries(null, null, () => swapi.get(endpoint, options))
+    return baseClient.retries(null, null, () => swapi.get(endpoint, options))
   }
 }
 
-const getPeople = getEndpoint('/people')
+const peopleEndpoint = getEndpoint('/people')
+const swapiPagination = {
+  getPageFromUrl: url => {
+    let parsedUrl = new URL(url)
+    return parseInt(parsedUrl.searchParams.get('page'))
+  },
+  getNext: result => {
+    if (!result.data.next) {
+      return false
+    }
+    return swapiPagination.getPageFromUrl(result.data.next)
+  },
+  getPrev: result => result.prev,
+  getResultIterable: result => {
+    return result.data.results
+  },
+  getPage: page => peopleEndpoint({ page: page })
+}
+const peopleStreamer = new baseClient.PageStreamer(swapiPagination, peopleEndpoint)
 
-getPeople()
-
-swapi
-  .get('/people', null, { axiosConfig: { url: '/films', method: 'get' } })
-  .then(console.log)
-  .catch(console.error)
-
-// getPeople
-//   .then(response => {
-//     return response.data
-//   })
-//   .then(result => {})
-//   .catch(console.error)
+peopleStreamer(1)
+  .ratelimit(1, 500)
+  .map(item => {
+    return hl(converter.render(item))
+  })
+  .flatten()
+  .through(JSONStream.stringify('[\n  ', ',\n  ', '\n]\n'))
+  .pipe(process.stdout)

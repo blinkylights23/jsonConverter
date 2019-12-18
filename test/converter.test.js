@@ -138,7 +138,10 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
         {
           path: 'movies',
           query: 'films',
-          processors: [{ processor: 'map', args: ['fetch'] }, { processor: 'query', args: ['[].title'] }]
+          processors: [
+            { processor: 'map', args: ['fetch'] },
+            { processor: 'query', args: ['[].title'] }
+          ]
         }
       ]
     }
