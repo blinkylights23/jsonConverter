@@ -1,5 +1,4 @@
-import { create } from 'apisauce'
-import { compose, curry } from './functional'
+import { curry } from './functional'
 import hl from 'highland'
 
 // Monitors

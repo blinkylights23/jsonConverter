@@ -2,7 +2,7 @@ import JSONStream from 'JSONStream'
 import hl from 'highland'
 import { converter } from './transform'
 import { create } from 'apisauce'
-import { compose, curry } from './lib/functional'
+import { compose } from './lib/functional'
 import * as baseClient from './lib/baseClient'
 
 const swapiAxiosOptions = {
