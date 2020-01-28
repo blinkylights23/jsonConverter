@@ -203,6 +203,16 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
     })
   })
   test('can use an object as a starting point, and converted values add to or overwrite existing properties', () => {
+    let startingDoc = {
+      source: 'SWAPI'
+    }
+    let template = {
+      mappings: [
+        { path: 'name', query: 'name' },
+        { path: 'isHuman', query: 'species==https://swapi.co/api/species/1/' }
+      ]
+    }
+    let converter = new Converter(template)
     expect(true).toStrictEqual(true)
   })
   test("can, when path is an array, destructure mapping results into it's members", () => {
