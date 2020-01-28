@@ -17,24 +17,23 @@ export default class Converter {
   }
 
   applyProcessor(processor, value) {
+    var promisify = result => {
+      if (result instanceof Promise) return result
+      else return Promise.resolve(result)
+    }
+
     // If processor is a string, call the property on this.processors with value
     if (typeof processor == 'string') {
-      let processorResult = this.processors[processor](value)
-      if (processorResult instanceof Promise) return processorResult
-      else return Promise.resolve(processorResult)
+      return promisify(this.processors[processor](value))
     }
     // if processor is an object with a "processor" member, call the this.processors member with value, and processor.args
     if (typeof processor == 'object') {
       let args = processor.args || []
-      let processorResult = this.processors[processor.processor].apply(this.processors, [value, ...args])
-      if (processorResult instanceof Promise) return processorResult
-      else return Promise.resolve(processorResult)
+      return promisify(this.processors[processor.processor].apply(this.processors, [value, ...args]))
     }
     // if processor is a function, call the function with value
     if (typeof processor == 'function') {
-      let processorResult = processor(value)
-      if (processorResult instanceof Promise) return processorResult
-      else return Promise.resolve(processorResult)
+      return promisify(processor(value))
     }
   }
 
