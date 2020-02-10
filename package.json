@@ -1,9 +1,10 @@
 {
   "name": "@paulsmith/jsonconverter",
   "version": "0.0.1-0",
-  "description": "JSON-to-JSON converter for providing transformations in hand-rolled ETL data pipelines",
-  "main": "dist/index.js",
+  "description": "JSON-to-JSON converter",
+  "main": "index.js",
   "files": [
+    "index.js",
     "dist/*",
     "schema/*",
     "README*",
