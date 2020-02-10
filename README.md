@@ -58,7 +58,7 @@ converter.render(sourceData).then(result => console.log({ ...sourceData, ...resu
 const myTemplate = {
   mappings: [
     {
-      path: 'parsecs',
+      path: 'hanSolo.kesselRun.parsecs',
       query: 'kesselRunParsecs',
       processors: [p => --p]
     }
@@ -71,7 +71,25 @@ converter.render(sourceData).then(result => console.log(result))
 // { parsecs: 12 }
 ```
 
-### Examples
+### Compose processors by chaining them together
+
+```javascript
+// Compose outcomes by chaining processors
+const myTemplate = {
+  mappings: [
+    { path: 'name', query: 'name', processors: ['trim', 'upper'] },
+    {
+      path: 'bestPal',
+      processors: [() => 'Chewie', 'upper']
+    }
+  ]
+}
+const sourceData = { name: '     Han Solo   ' }
+const converter = new Converter(myTemplate)
+
+converter.render(sourceData).then(result => console.log({ ...sourceData, ...result }))
+// { name: 'HAN SOLO', bestPal: 'CHEWIE' }
+```
 
 ## Acknowledgements
 
