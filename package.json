@@ -1,6 +1,6 @@
 {
   "name": "@paulsmith/jsonconverter",
-  "version": "0.0.1-0",
+  "version": "0.0.1-1",
   "description": "JSON-to-JSON converter",
   "main": "index.js",
   "files": [
