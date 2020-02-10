@@ -4,30 +4,71 @@ JSON converter is a tool for passing JSON data to a template and rendering out r
 
 ## Getting Started
 
-JSON COnverter is on `npm`, so installing is pretty easy:
-
 ```
 $ npm install @paulsmith/jsonconverter
 ```
 
 ## Usage
 
+### Basic Usage
+
 ```javascript
-import { Converter } from '@paulsmith/jsoncoverter'
+import { Converter } from '@paulsmith/jsonconverter'
 
 const myTemplate = {
   mappings: [
     {
-      path: 'bar', // Where the data will go in the target
-      query: 'foo', // Where to find the data in the source
+      path: 'milleniumFalcon.pilot', // Where the data will go in the target
+      query: 'pilot', // Where to find the data in the source
       processors: ['trim', 'upper'] // Apply transformations
     }
   ]
 }
-const sourceData = { foo: 'bif' }
+const sourceData = { pilot: ' Han Solo  ' }
 const converter = new Converter(myTemplate)
 
 converter.render(sourceData).then(result => console.log(result))
+```
+
+### Add an arbitrary value to target JSON
+
+```javascript
+const myTemplate = {
+  mappings: [
+    { path: 'isScoundrel', value: true },
+    { path: 'pal', value: 'Lando' },
+    { path: 'bestPal', value: 'Chewie' }
+  ]
+}
+const sourceData = { name: 'Han Solo' }
+const converter = new Converter(myTemplate)
+
+converter.render(sourceData).then(result => console.log({ ...sourceData, ...result }))
+// {
+//  name: 'Han Solo',
+//  isScoundrel: true,
+//  pal: 'Lando',
+//  bestPal: 'Chewie'
+// }
+```
+
+### Apply a custom function as a processor
+
+```javascript
+const myTemplate = {
+  mappings: [
+    {
+      path: 'parsecs',
+      query: 'kesselRunParsecs',
+      processors: [p => --p]
+    }
+  ]
+}
+const sourceData = { kesselRunParsecs: 13 }
+const converter = new Converter(myTemplate)
+
+converter.render(sourceData).then(result => console.log(result))
+// { parsecs: 12 }
 ```
 
 ### Examples
