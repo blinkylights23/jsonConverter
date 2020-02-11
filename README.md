@@ -28,6 +28,7 @@ const sourceData = { pilot: ' Han Solo  ' }
 const converter = new Converter(myTemplate)
 
 converter.render(sourceData).then(result => console.log(result))
+// { milleniumFalcon: { pilot: 'HAN SOLO' } }
 ```
 
 ### Add an arbitrary value to target JSON
@@ -68,7 +69,7 @@ const sourceData = { kesselRunParsecs: 13 }
 const converter = new Converter(myTemplate)
 
 converter.render(sourceData).then(result => console.log(result))
-// { parsecs: 12 }
+// { hanSolo: { kesselRun: { parsecs: 12 } } }
 ```
 
 ### Compose processors by chaining them together
@@ -90,6 +91,8 @@ const converter = new Converter(myTemplate)
 converter.render(sourceData).then(result => console.log({ ...sourceData, ...result }))
 // { name: 'HAN SOLO', bestPal: 'CHEWIE' }
 ```
+
+## Built-in Processors
 
 ## Acknowledgements
 
