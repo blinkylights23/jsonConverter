@@ -102,4 +102,6 @@ converter.render(sourceData).then(result => console.log({ ...sourceData, ...resu
 
 ### Built with
 
+:heart:
+
 ## Contributing
