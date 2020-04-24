@@ -14,7 +14,8 @@
     "test:watch": "jest --verbose --watchAll",
     "build": "webpack -r esm --mode production --config webpack/webpack.config.js",
     "build:watch": "webpack -w -r esm --mode development --config webpack/webpack.config.js",
-    "watch": "concurrently \"npm run *:watch\""
+    "watch": "concurrently \"npm run *:watch\"",
+    "release": "np"
   },
   "keywords": [
     "json2json",
@@ -35,6 +36,7 @@
     "esm": "^3.2.25",
     "highland": "^2.13.5",
     "jest": "^24.9.0",
+    "np": "^6.2.2",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-node-externals": "^1.7.2"
