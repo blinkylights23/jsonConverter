@@ -7,7 +7,7 @@
     "dist/*",
     "schema/*",
     "README*",
-    "LICENSE/*"
+    "LICENSE*"
   ],
   "scripts": {
     "test": "jest --verbose",
@@ -20,7 +20,8 @@
   "keywords": [
     "json2json",
     "transformation",
-    "mapping"
+    "mapping",
+    "etl"
   ],
   "author": "Paul Smith <paul@paulsmith.io>",
   "license": "ISC",
