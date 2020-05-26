@@ -8,6 +8,11 @@ export default class Converter {
     this.hooks = []
   }
 
+  promisify(result) {
+    if (result instanceof Promise) return result
+    return Promise.resolve(result)
+  }
+
   assignDotted(obj, path, val) {
     const keys = path.split('.')
     const tailKey = keys.pop()
@@ -18,58 +23,73 @@ export default class Converter {
   }
 
   applyProcessor(processor, value) {
-    var promisify = (result) => {
-      if (result instanceof Promise) return result
-      else return Promise.resolve(result)
-    }
-
     // If processor is a string, call the property on this.processors with value
     if (typeof processor == 'string') {
-      return promisify(this.processors[processor](value))
+      return this.promisify(this.processors[processor](value))
     }
     // if processor is an object with a "processor" member, call the this.processors member with value, and processor.args
     if (typeof processor == 'object') {
       let args = processor.args || []
-      return promisify(this.processors[processor.processor].apply(this.processors, [value, ...args]))
+      return this.promisify(this.processors[processor.processor].apply(this.processors, [value, ...args]))
     }
     // if processor is a function, call the function with value
     if (typeof processor == 'function') {
-      return promisify(processor(value))
+      return this.promisify(processor(value))
     }
   }
 
+  applyHook(hook, obj) {
+    // If hook is a string, call the property on this.hooks with value
+    if (typeof hook == 'string') {
+      return this.promisify(this.hooks[hook](obj))
+    }
+    // if hook is an object with a "hook" member, call the this.hooks member with value, and hook.args
+    if (typeof hook == 'object') {
+      let args = hook.args || []
+      return this.promisify(this.hooks[hook.hook].apply(this.hooks, [obj, ...args]))
+    }
+    // if hook is a function, call the function with value
+    if (typeof hook == 'function') {
+      return this.promisify(hook(obj))
+    }
+  }
+
+  applyReference(ref, obj) {}
+
   render(source) {
-    var asyncMapping = this.template.mappings.map((mapping) => {
-      let asyncResult
+    var asyncMapping = this.template.mappings.map(mapping => {
+      let mapResult
+      let sourceValue = mapping.value || jmespath.search(source, mapping.query || '@')
+      let initialResult = {
+        path: mapping.path,
+        sourceValue: sourceValue,
+        result: sourceValue
+      }
       if (mapping.processors) {
-        let initialValue = mapping.value || jmespath.search(source, mapping.query || '@')
-        asyncResult = mapping.processors
+        mapResult = mapping.processors
           .reduce((prev, curr) => {
-            return prev.then((result) => {
+            return prev.then(result => {
               return this.applyProcessor(curr, result)
             })
-          }, Promise.resolve(initialValue))
-          .then((outcome) => {
-            return {
-              path: mapping.path,
-              result: outcome,
-              hook: mapping.hook,
-            }
+          }, Promise.resolve(sourceValue))
+          .then(outcome => {
+            return { ...initialResult, result: outcome }
           })
-      } else if (mapping.query) {
-        asyncResult = Promise.resolve({
-          path: mapping.path,
-          result: jmespath.search(source, mapping.query),
-          hook: mapping.hook,
-        })
-      } else if (mapping.value) {
-        asyncResult = Promise.resolve({ path: mapping.path, result: mapping.value, hook: mapping.hook })
+      } else {
+        mapResult = Promise.resolve(initialResult)
       }
-      return asyncResult
+      if (mapping.hook) {
+        mapResult = mapResult.then(resultObj => {
+          return this.applyHook(mapping.hook, resultObj).then(hookResult => {
+            return { ...resultObj, result: hookResult }
+          })
+        })
+      }
+      return mapResult
     })
-    return Promise.all(asyncMapping).then((results) => {
+    return Promise.all(asyncMapping).then(results => {
       let processingResult = results
-        .map((obj) => {
+        .map(obj => {
           if (obj.hook) {
             obj.result = obj.hook(obj.result)
           }

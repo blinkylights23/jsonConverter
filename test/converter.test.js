@@ -178,7 +178,7 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
   test('can apply a post-processing hook to a mapping', () => {
     let ships = []
     let shipHook = shipList => {
-      ships = ships.concat(shipList).sort()
+      ships = ships.concat(shipList.result).sort()
       return shipList
     }
     let template = {
