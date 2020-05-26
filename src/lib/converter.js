@@ -5,6 +5,7 @@ export default class Converter {
   constructor(template) {
     this.template = template
     this.processors = processors
+    this.hooks = []
   }
 
   assignDotted(obj, path, val) {
@@ -17,7 +18,7 @@ export default class Converter {
   }
 
   applyProcessor(processor, value) {
-    var promisify = result => {
+    var promisify = (result) => {
       if (result instanceof Promise) return result
       else return Promise.resolve(result)
     }
@@ -38,37 +39,37 @@ export default class Converter {
   }
 
   render(source) {
-    var asyncMapping = this.template.mappings.map(mapping => {
+    var asyncMapping = this.template.mappings.map((mapping) => {
       let asyncResult
       if (mapping.processors) {
         let initialValue = mapping.value || jmespath.search(source, mapping.query || '@')
         asyncResult = mapping.processors
           .reduce((prev, curr) => {
-            return prev.then(result => {
+            return prev.then((result) => {
               return this.applyProcessor(curr, result)
             })
           }, Promise.resolve(initialValue))
-          .then(outcome => {
+          .then((outcome) => {
             return {
               path: mapping.path,
               result: outcome,
-              hook: mapping.hook
+              hook: mapping.hook,
             }
           })
       } else if (mapping.query) {
         asyncResult = Promise.resolve({
           path: mapping.path,
           result: jmespath.search(source, mapping.query),
-          hook: mapping.hook
+          hook: mapping.hook,
         })
       } else if (mapping.value) {
         asyncResult = Promise.resolve({ path: mapping.path, result: mapping.value, hook: mapping.hook })
       }
       return asyncResult
     })
-    return Promise.all(asyncMapping).then(results => {
+    return Promise.all(asyncMapping).then((results) => {
       let processingResult = results
-        .map(obj => {
+        .map((obj) => {
           if (obj.hook) {
             obj.result = obj.hook(obj.result)
           }

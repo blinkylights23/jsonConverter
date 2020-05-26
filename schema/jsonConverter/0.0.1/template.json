@@ -30,6 +30,11 @@
     "description": {
       "type": "string"
     },
+    "querySyntax": {
+      "type": "string",
+      "description": "The querying tool used for selecting data from the source document",
+      "enum": ["jmespath"]
+    },
     "mappings": {
       "type": "array",
       "items": {
