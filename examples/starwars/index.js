@@ -5,7 +5,7 @@ axios
   .get('https://swapi.dev/api/people')
   .then(response => {
     return response.data.results.map(person => {
-      return converter.render(person)
+      return converter.render(person).then(converted => converted.result)
     })
   })
   .then(result => Promise.all(result))

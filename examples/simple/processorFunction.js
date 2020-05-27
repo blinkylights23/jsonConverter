@@ -12,5 +12,5 @@ const myTemplate = {
 const sourceData = { kesselRunParsecs: 13 }
 const converter = new Converter(myTemplate)
 
-converter.render(sourceData).then(result => console.log(result))
+converter.render(sourceData).then(converted => console.log(converted.result))
 // { hanSolo: { kesselRun: { parsecs: 12 } } }
