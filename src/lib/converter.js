@@ -6,6 +6,7 @@ export default class Converter {
     this.template = template
     this.processors = processors
     this.hooks = []
+    this.refs = []
   }
 
   promisify(result) {
@@ -23,38 +24,43 @@ export default class Converter {
   }
 
   applyProcessor(processor, value) {
-    // If processor is a string, call the property on this.processors with value
     if (typeof processor == 'string') {
       return this.promisify(this.processors[processor](value))
     }
-    // if processor is an object with a "processor" member, call the this.processors member with value, and processor.args
     if (typeof processor == 'object') {
       let args = processor.args || []
       return this.promisify(this.processors[processor.processor].apply(this.processors, [value, ...args]))
     }
-    // if processor is a function, call the function with value
     if (typeof processor == 'function') {
       return this.promisify(processor(value))
     }
   }
 
   applyHook(hook, obj) {
-    // If hook is a string, call the property on this.hooks with value
     if (typeof hook == 'string') {
       return this.promisify(this.hooks[hook](obj))
     }
-    // if hook is an object with a "hook" member, call the this.hooks member with value, and hook.args
     if (typeof hook == 'object') {
       let args = hook.args || []
       return this.promisify(this.hooks[hook.hook].apply(this.hooks, [obj, ...args]))
     }
-    // if hook is a function, call the function with value
     if (typeof hook == 'function') {
       return this.promisify(hook(obj))
     }
   }
 
-  applyReference(ref, obj) {}
+  applyReference(ref, obj) {
+    if (typeof ref == 'string') {
+      return this.promisify(this.refs[ref](obj))
+    }
+    if (typeof ref == 'object') {
+      let args = ref.args || []
+      return this.promisify(this.refs[ref.ref].apply(this.refs, [obj, ...args]))
+    }
+    if (typeof ref == 'function') {
+      return this.promisify(ref(obj))
+    }
+  }
 
   render(source) {
     var asyncMapping = this.template.mappings.map(mapping => {
@@ -85,20 +91,32 @@ export default class Converter {
           })
         })
       }
+      if (mapping.ref) {
+        mapResult = mapResult.then(resultObj => {
+          return this.applyReference(mapping.ref, resultObj).then(refResult => {
+            let [refPointer, refObj] = refResult
+            return { ...resultObj, result: refPointer, referencedObj: refObj }
+          })
+        })
+      }
       return mapResult
     })
     return Promise.all(asyncMapping).then(results => {
-      let processingResult = results
-        .map(obj => {
-          if (obj.hook) {
-            obj.result = obj.hook(obj.result)
+      let processingResult = results.reduce(
+        (prev, curr) => {
+          this.assignDotted(prev.result, curr.path, curr.result)
+          if (curr.referencedObj) {
+            prev.references.push(curr.referencedObj)
           }
-          return obj
-        })
-        .reduce((obj, result) => {
-          this.assignDotted(obj, result.path, result.result)
-          return obj
-        }, {})
+          return prev
+        },
+        {
+          result: {},
+          references: [],
+          errors: [],
+          warnings: []
+        }
+      )
       return processingResult
     })
   }
