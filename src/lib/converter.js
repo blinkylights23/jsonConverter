@@ -5,7 +5,8 @@ export default class Converter {
   constructor(template) {
     this.template = template
     this.processors = processors
-    this.hooks = []
+    this.hooks = {}
+    this.refs = {}
   }
 
   promisify(result) {
