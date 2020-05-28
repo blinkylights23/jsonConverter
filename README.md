@@ -1,6 +1,14 @@
 # JSON Converter
 
-JSON converter is a tool for passing JSON data to a template and rendering out result data in a different JSON structure. It supports referencing data in the source document by JMESPath expression, there's support for both simple mapping from a source JSON field to a target field, you can apply custom logic to transformations, and JSON Converter supports chaining custom or built-in processing functions (it comes with quite a few processors already). Templates are themselves JSON documents, and there are template schema validation tools included in this repo.
+This is yet another tool for converting JSON data composed in one format into JSON with some other
+schema. It supports:
+
+- Querying the source document with JMESPath expressions
+- JSON-serializable templates
+- Custom transformation logic (processors)
+- Chaining processors
+- Async processors
+- References
 
 ## Getting Started
 
@@ -20,14 +28,14 @@ const myTemplate = {
     {
       path: 'milleniumFalcon.pilot', // Where the data will go in the target
       query: 'pilot', // Where to find the data in the source
-      processors: ['trim', 'upper'], // Apply transformations
-    },
-  ],
+      processors: ['trim', 'upper'] // Apply transformations
+    }
+  ]
 }
 const sourceData = { pilot: ' Han Solo  ' }
 const converter = new Converter(myTemplate)
 
-converter.render(sourceData).then((result) => console.log(result))
+converter.render(sourceData).then(converted => console.log(converted.result))
 // { milleniumFalcon: { pilot: 'HAN SOLO' } }
 ```
 
@@ -38,13 +46,13 @@ const myTemplate = {
   mappings: [
     { path: 'isScoundrel', value: true },
     { path: 'pal', value: 'Lando' },
-    { path: 'bestPal', value: 'Chewie' },
-  ],
+    { path: 'bestPal', value: 'Chewie' }
+  ]
 }
 const sourceData = { name: 'Han Solo' }
 const converter = new Converter(myTemplate)
 
-converter.render(sourceData).then((result) => console.log({ ...sourceData, ...result }))
+converter.render(sourceData).then(converted => console.log({ ...sourceData, ...converted.result }))
 // {
 //  name: 'Han Solo',
 //  isScoundrel: true,
@@ -61,14 +69,14 @@ const myTemplate = {
     {
       path: 'hanSolo.kesselRun.parsecs',
       query: 'kesselRunParsecs',
-      processors: [(p) => --p],
-    },
-  ],
+      processors: [p => --p]
+    }
+  ]
 }
 const sourceData = { kesselRunParsecs: 13 }
 const converter = new Converter(myTemplate)
 
-converter.render(sourceData).then((result) => console.log(result))
+converter.render(sourceData).then(converted => console.log(converted.result))
 // { hanSolo: { kesselRun: { parsecs: 12 } } }
 ```
 
@@ -81,14 +89,14 @@ const myTemplate = {
     { path: 'name', query: 'name', processors: ['trim', 'upper'] },
     {
       path: 'bestPal',
-      processors: [() => 'Chewie', 'upper'],
-    },
-  ],
+      processors: [() => 'Chewie', 'upper']
+    }
+  ]
 }
 const sourceData = { name: '     Han Solo   ' }
 const converter = new Converter(myTemplate)
 
-converter.render(sourceData).then((result) => console.log({ ...sourceData, ...result }))
+converter.render(sourceData).then(converted => console.log({ ...sourceData, ...converted.result }))
 // { name: 'HAN SOLO', bestPal: 'CHEWIE' }
 ```
 

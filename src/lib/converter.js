@@ -5,7 +5,13 @@ export default class Converter {
   constructor(template) {
     this.template = template
     this.processors = processors
-    this.hooks = []
+    this.hooks = {}
+    this.refs = {}
+  }
+
+  promisify(result) {
+    if (result instanceof Promise) return result
+    return Promise.resolve(result)
   }
 
   assignDotted(obj, path, val) {
@@ -18,67 +24,99 @@ export default class Converter {
   }
 
   applyProcessor(processor, value) {
-    var promisify = (result) => {
-      if (result instanceof Promise) return result
-      else return Promise.resolve(result)
-    }
-
-    // If processor is a string, call the property on this.processors with value
     if (typeof processor == 'string') {
-      return promisify(this.processors[processor](value))
+      return this.promisify(this.processors[processor](value))
     }
-    // if processor is an object with a "processor" member, call the this.processors member with value, and processor.args
     if (typeof processor == 'object') {
       let args = processor.args || []
-      return promisify(this.processors[processor.processor].apply(this.processors, [value, ...args]))
+      return this.promisify(this.processors[processor.processor].apply(this.processors, [value, ...args]))
     }
-    // if processor is a function, call the function with value
     if (typeof processor == 'function') {
-      return promisify(processor(value))
+      return this.promisify(processor(value))
+    }
+  }
+
+  applyHook(hook, obj) {
+    if (typeof hook == 'string') {
+      return this.promisify(this.hooks[hook](obj))
+    }
+    if (typeof hook == 'object') {
+      let args = hook.args || []
+      return this.promisify(this.hooks[hook.hook].apply(this.hooks, [obj, ...args]))
+    }
+    if (typeof hook == 'function') {
+      return this.promisify(hook(obj))
+    }
+  }
+
+  applyReference(ref, obj) {
+    if (typeof ref == 'string') {
+      return this.promisify(this.refs[ref](obj))
+    }
+    if (typeof ref == 'object') {
+      let args = ref.args || []
+      return this.promisify(this.refs[ref.ref].apply(this.refs, [obj, ...args]))
+    }
+    if (typeof ref == 'function') {
+      return this.promisify(ref(obj))
     }
   }
 
   render(source) {
-    var asyncMapping = this.template.mappings.map((mapping) => {
-      let asyncResult
+    var asyncMapping = this.template.mappings.map(mapping => {
+      let mapResult
+      let sourceValue = mapping.value || jmespath.search(source, mapping.query || '@')
+      let initialResult = {
+        path: mapping.path,
+        sourceValue: sourceValue,
+        result: sourceValue
+      }
       if (mapping.processors) {
-        let initialValue = mapping.value || jmespath.search(source, mapping.query || '@')
-        asyncResult = mapping.processors
+        mapResult = mapping.processors
           .reduce((prev, curr) => {
-            return prev.then((result) => {
+            return prev.then(result => {
               return this.applyProcessor(curr, result)
             })
-          }, Promise.resolve(initialValue))
-          .then((outcome) => {
-            return {
-              path: mapping.path,
-              result: outcome,
-              hook: mapping.hook,
-            }
+          }, Promise.resolve(sourceValue))
+          .then(outcome => {
+            return { ...initialResult, result: outcome }
           })
-      } else if (mapping.query) {
-        asyncResult = Promise.resolve({
-          path: mapping.path,
-          result: jmespath.search(source, mapping.query),
-          hook: mapping.hook,
-        })
-      } else if (mapping.value) {
-        asyncResult = Promise.resolve({ path: mapping.path, result: mapping.value, hook: mapping.hook })
+      } else {
+        mapResult = Promise.resolve(initialResult)
       }
-      return asyncResult
-    })
-    return Promise.all(asyncMapping).then((results) => {
-      let processingResult = results
-        .map((obj) => {
-          if (obj.hook) {
-            obj.result = obj.hook(obj.result)
-          }
-          return obj
+      if (mapping.hook) {
+        mapResult = mapResult.then(resultObj => {
+          return this.applyHook(mapping.hook, resultObj).then(hookResult => {
+            return { ...resultObj, result: hookResult }
+          })
         })
-        .reduce((obj, result) => {
-          this.assignDotted(obj, result.path, result.result)
-          return obj
-        }, {})
+      }
+      if (mapping.ref) {
+        mapResult = mapResult.then(resultObj => {
+          return this.applyReference(mapping.ref, resultObj).then(refResult => {
+            let [refPointer, refObj] = refResult
+            return { ...resultObj, result: refPointer, referencedObj: refObj }
+          })
+        })
+      }
+      return mapResult
+    })
+    return Promise.all(asyncMapping).then(results => {
+      let processingResult = results.reduce(
+        (prev, curr) => {
+          this.assignDotted(prev.result, curr.path, curr.result)
+          if (curr.referencedObj) {
+            prev.references.push(curr.referencedObj)
+          }
+          return prev
+        },
+        {
+          result: {},
+          references: [],
+          errors: [],
+          warnings: []
+        }
+      )
       return processingResult
     })
   }

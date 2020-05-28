@@ -13,5 +13,5 @@ const myTemplate = {
 const sourceData = { name: '     Han Solo   ' }
 const converter = new Converter(myTemplate)
 
-converter.render(sourceData).then(result => console.log({ ...sourceData, ...result }))
+converter.render(sourceData).then(converted => console.log({ ...sourceData, ...converted.result }))
 // { name: 'HAN SOLO', bestPal: 'CHEWIE' }

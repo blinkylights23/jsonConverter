@@ -7,65 +7,85 @@ import films from './fixtures/films.json'
 jest.mock('axios')
 
 describe("I do not want the Emperor's prize damaged. We will test it... on Captain Solo. A Converter instance:", () => {
-  test('can assign an arbitrary value to destination JSON', () => {
+  test('can assign an arbitrary value to destination JSON', done => {
     let template = {
       mappings: [{ path: 'isAwesome', value: true }]
     }
     let converter = new Converter(template)
-    converter.render(source).then(result => {
-      expect(result).toStrictEqual({ isAwesome: true })
-    })
+    converter
+      .render(source)
+      .then(converted => {
+        expect(converted.result).toStrictEqual({ isAwesome: true })
+        done()
+      })
+      .catch(error => done(error))
   })
-  test('can assign a value to a nested path in the destination JSON', () => {
+  test('can assign a value to a nested path in the destination JSON', done => {
     let template = {
       mappings: [{ path: 'spaceship.name', value: 'Millenium Falcon' }]
     }
     let converter = new Converter(template)
-    converter.render(source).then(result => {
-      expect(result).toStrictEqual({ spaceship: { name: 'Millenium Falcon' } })
-    })
+    converter
+      .render(source)
+      .then(converted => {
+        expect(converted.result).toStrictEqual({ spaceship: { name: 'Millenium Falcon' } })
+        done()
+      })
+      .catch(error => done(error))
   })
-  test('can assign a value from a jmespath query against the source JSON', () => {
+  test('can assign a value from a jmespath query against the source JSON', done => {
     let template = {
       mappings: [
         { path: 'bio', query: '{ height: height, weight: mass, skinColor: skin_color, hairColor: hair_color }' }
       ]
     }
     let converter = new Converter(template)
-    converter.render(source).then(result => {
-      expect(result).toStrictEqual({
-        bio: {
-          height: '180',
-          weight: '80',
-          skinColor: 'fair',
-          hairColor: 'brown'
-        }
+    converter
+      .render(source)
+      .then(converted => {
+        expect(converted.result).toStrictEqual({
+          bio: {
+            height: '180',
+            weight: '80',
+            skinColor: 'fair',
+            hairColor: 'brown'
+          }
+        })
+        done()
       })
-    })
+      .catch(error => done(error))
   })
-  test('will prefer to apply processors to value over query', () => {
+  test('will prefer to apply processors to value over query', done => {
     let template = {
       mappings: [{ path: 'name', value: 'Luke Skywalker', query: 'name', processors: ['lower'] }]
     }
     let converter = new Converter(template)
-    converter.render(source).then(result => {
-      expect(result).toStrictEqual({
-        name: 'luke skywalker'
+    converter
+      .render(source)
+      .then(converted => {
+        expect(converted.result).toStrictEqual({
+          name: 'luke skywalker'
+        })
+        done()
       })
-    })
+      .catch(error => done(error))
   })
-  test('can apply a default processor to a queried source value', () => {
+  test('can apply a default processor to a queried source value', done => {
     let template = {
       mappings: [{ path: 'name', query: 'name', processors: ['trim', 'upper'] }]
     }
     let converter = new Converter(template)
-    converter.render(source).then(result => {
-      expect(result).toStrictEqual({
-        name: 'HAN SOLO'
+    converter
+      .render(source)
+      .then(converted => {
+        expect(converted.result).toStrictEqual({
+          name: 'HAN SOLO'
+        })
+        done()
       })
-    })
+      .catch(error => done(error))
   })
-  test('can accept an arbitrary function as a processor', () => {
+  test('can accept an arbitrary function as a processor', done => {
     let template = {
       mappings: [
         { path: 'name', query: 'name', processors: ['trim', 'upper'] },
@@ -76,14 +96,18 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
       ]
     }
     let converter = new Converter(template)
-    converter.render(source).then(result => {
-      expect(result).toStrictEqual({
-        name: 'HAN SOLO',
-        bestPal: 'CHEWIE'
+    converter
+      .render(source)
+      .then(converted => {
+        expect(converted.result).toStrictEqual({
+          name: 'HAN SOLO',
+          bestPal: 'CHEWIE'
+        })
+        done()
       })
-    })
+      .catch(error => done(error))
   })
-  test('can use an object to apply a default processor with arguments', () => {
+  test('can use an object to apply a default processor with arguments', done => {
     let template = {
       mappings: [
         {
@@ -99,14 +123,18 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
       ]
     }
     let converter = new Converter(template)
-    converter.render(source).then(result => {
-      expect(result).toStrictEqual({
-        movies:
-          'https://swapi.co/api/films/2/, https://swapi.co/api/films/3/, https://swapi.co/api/films/1/, https://swapi.co/api/films/7/'
+    converter
+      .render(source)
+      .then(converted => {
+        expect(converted.result).toStrictEqual({
+          movies:
+            'https://swapi.co/api/films/2/, https://swapi.co/api/films/3/, https://swapi.co/api/films/1/, https://swapi.co/api/films/7/'
+        })
+        done()
       })
-    })
+      .catch(error => done(error))
   })
-  test('can register a custom processor', () => {
+  test('can register a custom processor', done => {
     let isScoundrel = name => {
       if (name.match(/solo|lando|chew/gi)) {
         return true
@@ -125,14 +153,18 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
     }
     let converter = new Converter(template)
     converter.processors.isScoundrel = isScoundrel
-    converter.render(source).then(result => {
-      expect(result).toStrictEqual({
-        name: 'HAN SOLO',
-        scoundrel: true
+    converter
+      .render(source)
+      .then(converted => {
+        expect(converted.result).toStrictEqual({
+          name: 'HAN SOLO',
+          scoundrel: true
+        })
+        done()
       })
-    })
+      .catch(error => done(error))
   })
-  test('can apply a query to a fetch via a map', () => {
+  test('can apply a query to a fetch via a map', done => {
     let template = {
       mappings: [
         {
@@ -150,13 +182,17 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
       return Promise.resolve({ data: film })
     })
     let converter = new Converter(template)
-    return converter.render(source).then(result => {
-      expect(result).toStrictEqual({
-        movies: ['The Empire Strikes Back', 'Return of the Jedi', 'A New Hope', 'The Force Awakens']
+    converter
+      .render(source)
+      .then(converted => {
+        expect(converted.result).toStrictEqual({
+          movies: ['The Empire Strikes Back', 'Return of the Jedi', 'A New Hope', 'The Force Awakens']
+        })
+        done()
       })
-    })
+      .catch(error => done(error))
   })
-  test('can apply a registered processor as a map', () => {
+  test('can apply a registered processor as a map', done => {
     let template = {
       mappings: [
         {
@@ -169,17 +205,21 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
     let chewify = str => `${str}, Chewie!`
     let converter = new Converter(template)
     converter.processors.chewify = chewify
-    return converter.render(source).then(result => {
-      expect(result).toStrictEqual({
-        quotes: ['Punch it, Chewie!', "Let's hope we don't have a burn-out, Chewie!"]
+    converter
+      .render(source)
+      .then(converted => {
+        expect(converted.result).toStrictEqual({
+          quotes: ['Punch it, Chewie!', "Let's hope we don't have a burn-out, Chewie!"]
+        })
+        done()
       })
-    })
+      .catch(error => done(error))
   })
-  test('can apply a post-processing hook to a mapping', () => {
+  test('can apply a post-processing hook to a mapping', done => {
     let ships = []
-    let shipHook = shipList => {
-      ships = ships.concat(shipList).sort()
-      return shipList
+    let shipHook = mapResult => {
+      ships = ships.concat(mapResult.result).sort()
+      return mapResult
     }
     let template = {
       mappings: [
@@ -193,13 +233,16 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
       ]
     }
     let converter = new Converter(template)
-    Promise.all([converter.render(source), converter.render(luke)]).then(outcome => {
-      expect(ships).toStrictEqual([
-        'HTTPS://SWAPI.CO/API/STARSHIPS/10/',
-        'HTTPS://SWAPI.CO/API/STARSHIPS/12/',
-        'HTTPS://SWAPI.CO/API/STARSHIPS/22/',
-        'HTTPS://SWAPI.CO/API/STARSHIPS/22/'
-      ])
-    })
+    Promise.all([converter.render(source), converter.render(luke)])
+      .then(converted => {
+        expect(ships).toStrictEqual([
+          'HTTPS://SWAPI.CO/API/STARSHIPS/10/',
+          'HTTPS://SWAPI.CO/API/STARSHIPS/12/',
+          'HTTPS://SWAPI.CO/API/STARSHIPS/22/',
+          'HTTPS://SWAPI.CO/API/STARSHIPS/22/'
+        ])
+        done()
+      })
+      .catch(error => done(error))
   })
 })

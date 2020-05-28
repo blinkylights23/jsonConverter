@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "https://raw.githubusercontent.com/blinkylights23/jsonConverter/master/schema/jsonConverter/0.0.1/conversionResult.json",
+  "title": "A jsonConverter result",
+  "description": "The results of rendering a conversion with jsonConverter",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "result": {
+      "anyOf": [{ "type": "object" }, { "type": "array" }]
+    },
+    "references": {
+      "type": "array"
+    },
+    "warnings": {
+      "type": "array"
+    },
+    "errors": {
+      "type": "array"
+    }
+  },
+  "required": ["result"]
+}

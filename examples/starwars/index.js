@@ -1,11 +1,15 @@
 import { converter } from './transform'
-import people from './data/people'
+import axios from 'axios'
 
-Promise.all(
-  people.map(item => {
-    console.log(item.name)
-    return converter.render(item)
+axios
+  .get('https://swapi.dev/api/people')
+  .then(response => {
+    return response.data.results.map(person => {
+      return converter.render(person).then(converted => converted.result)
+    })
   })
-).then(result => {
-  console.log(result)
-})
+  .then(result => Promise.all(result))
+  .then(result => console.log(result))
+  .catch(error => {
+    console.error(error.message)
+  })
