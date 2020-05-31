@@ -1,19 +1,17 @@
 import path from 'path'
 import webpack from 'webpack'
-import nodeExternals from 'webpack-node-externals'
 
 export default {
   entry: path.join(__dirname, '../src/index.js'),
-  target: 'node',
+  target: 'web',
   node: {
     __dirname: false,
     __filename: false
   },
-  externals: [nodeExternals()],
   output: {
     libraryTarget: 'commonjs',
     path: path.join(__dirname, '../dist'),
-    filename: 'index.js'
+    filename: 'jsonconverter.browser.js'
   },
   module: {
     rules: [

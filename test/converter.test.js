@@ -165,6 +165,10 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
       .catch(error => done(error))
   })
   test('can apply a query to a fetch via a map', done => {
+    axios.get.mockImplementation(value => {
+      let film = films.results.find(f => f.url == value)
+      return Promise.resolve({ data: film })
+    })
     let template = {
       mappings: [
         {
@@ -177,10 +181,7 @@ describe("I do not want the Emperor's prize damaged. We will test it... on Capta
         }
       ]
     }
-    axios.get.mockImplementation(value => {
-      let film = films.results.find(f => f.url == value)
-      return Promise.resolve({ data: film })
-    })
+
     let converter = new Converter(template)
     converter
       .render(source)

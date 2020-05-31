@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "JSON-to-JSON converter",
   "main": "dist/index.js",
+  "browser": "dist/jsonconverter.browser.js",
   "files": [
     "dist/*",
     "schema/*",
@@ -12,7 +13,9 @@
   "scripts": {
     "test": "jest --verbose",
     "test:watch": "jest --verbose --watchAll",
-    "build": "webpack -r esm --mode production --config webpack/webpack.config.js",
+    "build:node": "webpack -r esm --mode production --config webpack/webpack.config.js",
+    "build:browser": "webpack -r esm --mode production --config webpack/browser.webpack.config.js",
+    "build": "concurrently \"npm run build:node\" \"npm run build:browser\"",
     "build:watch": "webpack -w -r esm --mode development --config webpack/webpack.config.js",
     "watch": "concurrently \"npm run *:watch\"",
     "release": "np"

@@ -6,7 +6,7 @@ export default {
   lower: value => value.toLowerCase(),
   trim: value => value.trim(),
   join: (value, joiner = ', ') => value.join(joiner),
-  map: function(arrayValue, fn) {
+  map: function (arrayValue, fn) {
     return Promise.all(
       arrayValue.map(v => {
         let processorResult = this[fn](v)
