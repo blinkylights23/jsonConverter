@@ -25,6 +25,12 @@ export default class Converter {
 
   applyProcessor(processor, value) {
     if (typeof processor == 'string') {
+      if (!this.processors.hasOwnProperty(processor)) {
+        return Promise.reject({
+          error: 'ProcessorError',
+          message: `Missing processor: ${processor}`
+        })
+      }
       return this.promisify(this.processors[processor](value))
     }
     if (typeof processor == 'object') {
@@ -64,8 +70,15 @@ export default class Converter {
 
   render(source) {
     var asyncMapping = this.template.mappings.map(mapping => {
-      let mapResult
-      let sourceValue = mapping.value || jmespath.search(source, mapping.query || '@')
+      let mapResult, sourceValue
+      try {
+        sourceValue = mapping.value || jmespath.search(source, mapping.query || '@')
+      } catch (error) {
+        return Promise.reject({
+          error: error,
+          mapping: mapping
+        })
+      }
       let initialResult = {
         path: mapping.path,
         sourceValue: sourceValue,
@@ -74,12 +87,19 @@ export default class Converter {
       if (mapping.processors) {
         mapResult = mapping.processors
           .reduce((prev, curr) => {
-            return prev.then(result => {
-              return this.applyProcessor(curr, result)
-            })
+            return prev
+              .then(result => {
+                return this.applyProcessor(curr, result)
+              })
+              .catch(error => {
+                throw error
+              })
           }, Promise.resolve(sourceValue))
           .then(outcome => {
             return { ...initialResult, result: outcome }
+          })
+          .catch(error => {
+            console.error('Caught error applying processors', error)
           })
       } else {
         mapResult = Promise.resolve(initialResult)

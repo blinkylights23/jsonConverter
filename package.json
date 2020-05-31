@@ -24,6 +24,9 @@
     "etl"
   ],
   "author": "Paul Smith <paul@paulsmith.io>",
+  "repository": {
+    "url": "https://github.com/blinkylights23/jsonConverter"
+  },
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.9.0",

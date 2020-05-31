@@ -31,10 +31,14 @@
       "type": "array",
       "items": {
         "anyOf": [
-          { "type": "string" },
+          { "title": "Simple processor", "type": "string" },
           {
+            "title": "Processor with arguments",
             "type": "object",
-            "properties": { "processor": { "type": "string" }, "args": { "type": "array" } },
+            "properties": {
+              "processor": { "type": "string" },
+              "args": { "type": "array", "items": { "type": "string" } }
+            },
             "required": ["processor"]
           }
         ]

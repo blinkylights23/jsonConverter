@@ -4,12 +4,12 @@ import nodeExternals from 'webpack-node-externals'
 
 export default {
   entry: path.join(__dirname, '../src/index.js'),
-  target: 'node',
+  target: 'web',
   node: {
     __dirname: false,
     __filename: false
   },
-  externals: [nodeExternals()],
+  // externals: [nodeExternals()],
   output: {
     libraryTarget: 'commonjs',
     path: path.join(__dirname, '../dist'),
